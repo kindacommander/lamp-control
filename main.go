@@ -25,8 +25,8 @@ func (c *Command) String() string {
 	return c.Feature + fmt.Sprint(c.Value)
 }
 
-// Values contain current lamp config
-type Values struct {
+// State contain current lamp config
+type State struct {
 	PoweredOn  bool `json:"power"`
 	Effect     int  `json:"effect"`
 	Brightness int  `json:"brightness"`
@@ -98,8 +98,8 @@ func setupRoutes() {
 			vals[i] = v
 		}
 
-		values := Values{PoweredOn: itob(vals[4]), Effect: vals[0], Brightness: vals[1], Speed: vals[2], Scale: vals[3]}
-		json, err := json.Marshal(values)
+		state := State{PoweredOn: itob(vals[4]), Effect: vals[0], Brightness: vals[1], Speed: vals[2], Scale: vals[3]}
+		json, err := json.Marshal(state)
 		if err != nil {
 			panic(err)
 		}
