@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -43,7 +44,7 @@ func main() {
 func setupRoutes() {
 	go connectToLamp()
 
-	http.HandleFunc("/udp", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/cmd", func(w http.ResponseWriter, r *http.Request) {
 		enableCors(&w)
 		if r.Method == "OPTIONS" {
 			return
@@ -67,7 +68,7 @@ func setupRoutes() {
 
 		commands <- cmd
 	})
-	http.HandleFunc("/curr-features", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/curr-state", func(w http.ResponseWriter, r *http.Request) {
 		enableCors(&w)
 		if r.Method == "OPTIONS" {
 			return
@@ -81,9 +82,11 @@ func setupRoutes() {
 		cmd := Command{"GET", 0}
 		conn.Write([]byte(cmd.String()))
 
-		res := make([]byte, 16)
+		res := make([]byte, 32)
 		conn.Read(res)
 		conn.Close()
+
+		res = bytes.Trim(res, "\x00")
 
 		fmt.Println(res)
 		valuesStr := strings.Split(strings.Trim(string(res), "CURR "), " ")
