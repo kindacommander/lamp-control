@@ -33,6 +33,11 @@ func setupRoutes() {
 	go connectToLamp()
 
 	http.HandleFunc("/udp", func(w http.ResponseWriter, r *http.Request) {
+		enableCors(&w)
+		if r.Method == "OPTIONS" {
+			return
+		}
+
 		body, err := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
@@ -47,8 +52,16 @@ func setupRoutes() {
 			return
 		}
 
+		fmt.Println(cmd.String())
+
 		commands <- cmd
 	})
+}
+
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+	(*w).Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 }
 
 func connectToLamp() {
