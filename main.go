@@ -35,12 +35,6 @@ type State struct {
 	Scale      int  `json:"scale"`
 }
 
-func main() {
-	fmt.Println("Golang HTTP to UDP proxy")
-	setupRoutes()
-	log.Fatal(http.ListenAndServe(":8080", nil))
-}
-
 func setupRoutes() {
 	go connectToLamp()
 
@@ -69,6 +63,7 @@ func setupRoutes() {
 		commands <- cmd
 	})
 	http.HandleFunc("/curr-state", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Current state request")
 		enableCors(&w)
 		if r.Method == "OPTIONS" {
 			return
@@ -133,4 +128,12 @@ func connectToLamp() {
 		cmd := <-commands
 		conn.Write([]byte(cmd.String()))
 	}
+}
+
+func main() {
+	fmt.Println("Golang HTTP to UDP proxy")
+	fs := http.FileServer(http.Dir("./frontend"))
+	http.Handle("/", fs)
+	setupRoutes()
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
