@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const addr = "192.168.31.68:8888"
+const addr = "192.168.31.242:8888"
 
 var commands = make(chan Command)
 
